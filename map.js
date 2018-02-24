@@ -12,3 +12,15 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
 var marker = L.marker([49.868804, -119.338829]).addTo(map);
 
 marker.bindPopup("<b>Title</b><br>Some info about this!").openPopup();
+
+$.ajax({
+    type: "post",
+    url: "db/ajax_requests.php",
+    data: {request: "get_sites"},
+    success: function(result) {
+      console.log(result);
+    },
+    error: function(jqXHR, textStatus, errorThrown){
+      alert(textStatus, errorThrown);
+   }
+});
