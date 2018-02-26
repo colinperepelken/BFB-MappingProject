@@ -12,4 +12,9 @@ class Functions {
       return $this->db->data_query($query);
   }
 
+  public function get_markers($site_id) {
+      $query = "SELECT * FROM marker WHERE site = ?";
+      return $this->db->data_query($query, "i", array((int)$site_id));
+  }
+
 }

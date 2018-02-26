@@ -11,9 +11,17 @@ if (!empty($_POST)) {
    $functions = new Functions($db);
 
   if (method_exists($functions, $method)) {
-    $data = $functions->$method();
-    var_dump($data);
-    //header('Content-Type: application/json');
-    //echo json_encode($data);
+
+    if (isset($_POST['arg1'])) {
+        $arg1 = $_POST['arg1'];
+        $data = $functions->$method($arg1);
+    } else {
+      $data = $functions->$method();
+    }
+
+    // var_dump($data);
+
+    header('Content-Type: application/json');
+    echo json_encode($data);
   }
 }

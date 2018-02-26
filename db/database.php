@@ -17,7 +17,7 @@ class Database {
     public function data_query($query, $type = null, $params = array()) {
       if ($stmt = $this->mysqli->prepare($query)) {
         if (!is_null($type)) {
-          call_user_func_array(array($stmt, "bind_param"), array_merge(array($type), $params)); // bind params
+          $stmt->bind_param($type, ...$params);
         }
         $stmt->execute();
 
