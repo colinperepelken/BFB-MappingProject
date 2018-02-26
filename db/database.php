@@ -20,20 +20,9 @@ class Database {
           call_user_func_array(array($stmt, "bind_param"), array_merge(array($type), $params)); // bind params
         }
         $stmt->execute();
-        return $this->get_result_set_as_associative_array($stmt->get_result());
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       }
       return null;
-    }
-
-    private function get_result_set_as_associative_array($result) {
-      $rows = array();
-      while ($row = $result->fetch_array()) {
-        $rows[] = $row;
-      }
-      try {
-        return $rows;
-      } catch (Exception $e) {
-        return null;
-      }
     }
 }
