@@ -1,32 +1,41 @@
 
-var map = L.map('map').setView([49.8880, -119.4960], 11);
+// global variables
+var map;
+var backButton;
+var markerGroup;
+var backGroundImage;
 
-// temp tile layer for now
-L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-    //attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    maxZoom: 18,
-    id: 'mapbox.outdoors',
-    accessToken: 'pk.eyJ1Ijoic3VoZmYiLCJhIjoiY2plMGk3eWh1MHk0MDMzbW9scDhhaXpibiJ9.B32EslPErO5wtqwwa9vvyQ'
-}).addTo(map);
+function initMap() {
+  map = L.map('map').setView([49.8880, -119.4960], 11);
 
-getSites();
+  // temp tile layer for now
+  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+      //attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox.outdoors',
+      accessToken: 'pk.eyJ1Ijoic3VoZmYiLCJhIjoiY2plMGk3eWh1MHk0MDMzbW9scDhhaXpibiJ9.B32EslPErO5wtqwwa9vvyQ'
+  }).addTo(map);
 
-var backButton = L.easyButton({
-  id: 'back-btn',
-  position: 'topleft',
-  type: 'replace',
-  leafletClasses: false,
-  states: [{
-    stateName: 'go-back',
-    onClick: goBack,
-    title: 'Go back',
-    icon: '<img alt="back button" src="images/buttons/back.png"/>'
-  }]
-});
+  getSites();
 
-var backgroundImage = null;
+  backButton = L.easyButton({
+    id: 'back-btn',
+    position: 'topleft',
+    type: 'replace',
+    leafletClasses: false,
+    states: [{
+      stateName: 'go-back',
+      onClick: goBack,
+      title: 'Go back',
+      icon: '<img alt="back button" src="images/buttons/back.png"/>'
+    }]
+  });
 
-var markerGroup = L.layerGroup().addTo(map);
+  backgroundImage = null;
+
+  markerGroup = L.layerGroup().addTo(map);
+}
+
 
 function getSites() {
   $.ajax({
@@ -82,8 +91,7 @@ function loadSite(id) {
           let markerImage = new Image();
           let markerIcon;
           markerImage.onload = function() {
-            alert(this.width);
-            markerIcon = L.icon({
+              markerIcon = L.icon({
               iconUrl: this.src,
               iconSize: [this.width, this.height]
             });
