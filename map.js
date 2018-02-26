@@ -5,14 +5,23 @@ var backButton;
 var markerGroup;
 var backGroundImage;
 
+var DEFAULT_ZOOM = 11;
+
+
 /*
  * Initialize the Leaflet map
  */
 function initMap() {
-  map = L.map('map').setView([49.8880, -119.4960], 11);
+
+  // init map
+  map = new L.map('map', {
+    center: [49.8880, -119.4960],
+    zoom: DEFAULT_ZOOM,
+    maxBoundsViscosity: 1.0 // prevent user from dragging outside bounds
+  });
 
   // temp tile layer for now
-  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+  var tileLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
       //attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
       maxZoom: 18,
       id: 'mapbox.outdoors',
@@ -68,7 +77,7 @@ function getSites() {
 
             marker.on("click", function() {
               map.removeLayer(this);
-              loadSite(site['id']);
+              loadSite(site['id'], site['longitude'], site['latitude']);
             });
           }
           markerImage.src = "images/sites/" + site['marker_image'];
@@ -85,11 +94,20 @@ function getSites() {
 /*
  * Called when a site is clicked. Loads the site background and all markers at the site.
  */
-function loadSite(id) {
+function loadSite(id, longitude, latitude) {
 
-  disableUserControl();
+  // disableUserControl();
+  map.setView([latitude, longitude], DEFAULT_ZOOM, {animate: false}); // set to long and lat of the site
+  map.setZoom(12);
+
   backgroundImage = L.imageOverlay("images/sites/farm_background.jpg", [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()]);
   backgroundImage.addTo(map); // ad custom site background image
+
+  map.setMaxBounds(backgroundImage.getBounds());
+
+  // restrict zooming
+  map._layersMaxZoom = 13;
+  map._layersMinZoom = DEFAULT_ZOOM;
 
   // get markers for the site
   $.ajax({
@@ -111,11 +129,11 @@ function loadSite(id) {
             let marker = L.marker([feature['latitude'], feature['longitude']], {icon: markerIcon}).addTo(markerGroup);
 
             // Show a pop up with information about the feature
-            marker.on("click", function() {
+            let popup = L.popup({maxWidth: 500, minWidth: 500, maxHeight: 800, minHeight: 800, keepInView: true, className: 'custom'})
+              .setContent("<h1>" + feature['name'] + '</h1><img height=300 width=500 src="images/content/' + feature['content_image'] + '"/><p>' + feature['content_text'] + '</p><p>Date added: ' + feature['date_added'] + '</p>')
+              .setLatLng(map.getCenter());
+            marker.bindPopup(popup);
 
-
-
-            });
           }
           markerImage.src = "images/markers/" + feature['marker_image'];
         }
@@ -134,10 +152,12 @@ function loadSite(id) {
  * Called when the back button is clicked.
  */
 function goBack() {
-  enableUserControl();
+  // enableUserControl();
   map.removeControl(backButton);
   map.removeLayer(backgroundImage);
   markerGroup.clearLayers();
+  map.setZoom(DEFAULT_ZOOM);
+  map.setMaxBounds(null);
   getSites();
 }
 

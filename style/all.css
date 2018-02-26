@@ -9,3 +9,9 @@ h1 {
   width: 900px;
   margin: auto;
 }
+
+.custom .leaflet-popup-tip,
+.custom .leaflet-popup-content-wrapper {
+    background: #625A8C;
+    color: #FBB655;
+}
