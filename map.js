@@ -1,10 +1,13 @@
 
-// global variables
+// Global variables
 var map;
 var backButton;
 var markerGroup;
 var backGroundImage;
 
+/*
+ * Initialize the Leaflet map
+ */
 function initMap() {
   map = L.map('map').setView([49.8880, -119.4960], 11);
 
@@ -16,8 +19,10 @@ function initMap() {
       accessToken: 'pk.eyJ1Ijoic3VoZmYiLCJhIjoiY2plMGk3eWh1MHk0MDMzbW9scDhhaXpibiJ9.B32EslPErO5wtqwwa9vvyQ'
   }).addTo(map);
 
+  // add all sites to the map
   getSites();
 
+  // init the back button
   backButton = L.easyButton({
     id: 'back-btn',
     position: 'topleft',
@@ -31,12 +36,16 @@ function initMap() {
     }]
   });
 
+  // site background image
   backgroundImage = null;
 
+  // markers in a site
   markerGroup = L.layerGroup().addTo(map);
 }
 
-
+/*
+ * Query database for all sites and add them to the map.
+ */
 function getSites() {
   $.ajax({
       type: "post",
@@ -73,11 +82,14 @@ function getSites() {
   });
 }
 
+/*
+ * Called when a site is clicked. Loads the site background and all markers at the site.
+ */
 function loadSite(id) {
-  var bounds = map.getBounds();
+
   disableUserControl();
-  backgroundImage = L.imageOverlay("images/sites/farm_background.jpg", [bounds.getNorthWest(), bounds.getSouthEast()]);
-  backgroundImage.addTo(map);
+  backgroundImage = L.imageOverlay("images/sites/farm_background.jpg", [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()]);
+  backgroundImage.addTo(map); // ad custom site background image
 
   // get markers for the site
   $.ajax({
@@ -98,9 +110,11 @@ function loadSite(id) {
 
             let marker = L.marker([feature['latitude'], feature['longitude']], {icon: markerIcon}).addTo(markerGroup);
 
+            // Show a pop up with information about the feature
             marker.on("click", function() {
-              // custom pop up here
-              alert("test");
+
+
+
             });
           }
           markerImage.src = "images/markers/" + feature['marker_image'];
@@ -116,6 +130,9 @@ function loadSite(id) {
 
 }
 
+/*
+ * Called when the back button is clicked.
+ */
 function goBack() {
   enableUserControl();
   map.removeControl(backButton);
@@ -124,6 +141,9 @@ function goBack() {
   getSites();
 }
 
+/*
+ * Removes zoom buttons, disables dragging and zooming.
+ */
 function disableUserControl() {
   map.touchZoom.disable();
   map.doubleClickZoom.disable();
@@ -134,6 +154,9 @@ function disableUserControl() {
   map.dragging.disable();
 }
 
+/*
+ * Adds zoom buttons, enables dragging and zooming
+ */
 function enableUserControl() {
   map.touchZoom.enable();
   map.doubleClickZoom.enable();
