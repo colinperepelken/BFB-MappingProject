@@ -4,8 +4,14 @@
   <title>BFB Mapping Project</title>
   <meta charset="utf-8">
 
-  <!-- temp, should download jquery -->
+  <!-- bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+  <!-- Jquery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- bootstrap JS -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
   <!-- leaflet JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
@@ -24,10 +30,23 @@
 </head>
 
 <body>
-  <h1>BFB Mapping Project</h1>
+  <div class="container-fluid">
+  	<div class="row text-center" id="logo">
+  			<a href="http://borderfreebees.com/" title="Border Free Bees" rel="home"><img src="http://borderfreebees.com/wp-content/uploads/2015/05/BFB-logo-41.png" alt="Border Free Bees"></a>
+    </div><!-- site-logo -->
 
-  <div id="map">
-    <!-- map rendered here -->
+    <div class="row text-center" id="map-row">
+      <div class="col-md-7" id="map-container">
+        <div id="map">
+          <!-- map rendered here -->
+        </div>
+      </div>
+      <div class="col-md-5" id="map-content">
+        <h3 id="content-title">Welcome to the BFB Map!</h3>
+        <img id="content-image" src=""/>
+        <p id="content-text">This map records significant project activities and knowledge that has been produced at major sites of activity. Start by clicking on either Kelowna or Richmond, and then click an image for more information about it.</p>
+      </div>
+    </div>
   </div>
 
   <!-- map code -->

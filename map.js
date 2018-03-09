@@ -3,7 +3,7 @@
 var map;
 var backButton;
 var markerGroup;
-var backGroundImage;
+var backgroundImage;
 
 var DEFAULT_ZOOM = 11;
 
@@ -50,6 +50,11 @@ function initMap() {
 
   // markers in a site
   markerGroup = L.layerGroup().addTo(map);
+
+  // log click locations
+  map.on("contextmenu", function (event) {
+    console.log("Coordinates: " + event.latlng.toString());
+  });
 }
 
 /*
@@ -77,7 +82,7 @@ function getSites() {
 
             marker.on("click", function() {
               map.removeLayer(this);
-              loadSite(site['id'], site['longitude'], site['latitude']);
+              loadSite(site['id'], site['longitude'], site['latitude'], site['background_image']);
             });
           }
           markerImage.src = "images/sites/" + site['marker_image'];
@@ -94,14 +99,14 @@ function getSites() {
 /*
  * Called when a site is clicked. Loads the site background and all markers at the site.
  */
-function loadSite(id, longitude, latitude) {
+function loadSite(id, longitude, latitude, background) {
 
   // disableUserControl();
   map.setView([latitude, longitude], DEFAULT_ZOOM, {animate: false}); // set to long and lat of the site
-  map.setZoom(12);
+  //map.setZoom(DEFAULT_ZOOM + 1);
 
-  backgroundImage = L.imageOverlay("images/sites/farm_background.jpg", [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()]);
-  backgroundImage.addTo(map); // ad custom site background image
+  backgroundImage = L.imageOverlay("images/sites/" + background, [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()]);
+  backgroundImage.addTo(map); // add custom site background image
 
   map.setMaxBounds(backgroundImage.getBounds());
 
@@ -129,10 +134,18 @@ function loadSite(id, longitude, latitude) {
             let marker = L.marker([feature['latitude'], feature['longitude']], {icon: markerIcon}).addTo(markerGroup);
 
             // Show a pop up with information about the feature
-            let popup = L.popup({maxWidth: 500, minWidth: 500, maxHeight: 800, minHeight: 800, keepInView: true, className: 'custom'})
-              .setContent("<h1>" + feature['name'] + '</h1><img height=300 width=500 src="images/content/' + feature['content_image'] + '"/><p>' + feature['content_text'] + '</p><p>Date added: ' + feature['date_added'] + '</p>')
-              .setLatLng(map.getCenter());
-            marker.bindPopup(popup);
+            // let popup = L.popup({maxWidth: 500, minWidth: 500, maxHeight: 800, minHeight: 800, keepInView: true, className: 'custom'})
+            //   .setContent("<h1>" + feature['name'] + '</h1><img height=300 width=500 src="images/content/' + feature['content_image'] + '"/><p>' + feature['content_text'] + '</p><p>Date added: ' + feature['date_added'] + '</p>')
+            //   .setLatLng(map.getCenter());
+            // marker.bindPopup(popup);
+
+
+            marker.on("click", function() {
+              $("#content-title").text(feature['name']);
+              $("#content-image").attr("src", "images/content/" + feature['content_image']);
+              $("#content-text").text(feature['content_text']);
+            });
+
 
           }
           markerImage.src = "images/markers/" + feature['marker_image'];
