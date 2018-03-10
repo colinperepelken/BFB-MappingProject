@@ -9,6 +9,7 @@ CREATE TABLE site (
   latitude DECIMAL(10, 8) NOT NULL,
   longitude DECIMAL(11, 8) NOT NULL,
   name VARCHAR(50) NOT NULL,
+  description VARCHAR(1000),
   marker_image VARCHAR(250),
   background_image VARCHAR(250),
   PRIMARY KEY (id)

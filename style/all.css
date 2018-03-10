@@ -38,8 +38,9 @@ h1 {
 
 #content-image {
   width: 80%;
-  padding-top: 2em;
-  padding-bottom: 2em;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  /*border: 1px solid white;*/
 }
 
 #logo {

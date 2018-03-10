@@ -82,7 +82,7 @@ function getSites() {
 
             marker.on("click", function() {
               map.removeLayer(this);
-              loadSite(site['id'], site['longitude'], site['latitude'], site['background_image']);
+              loadSite(site['id'], site['longitude'], site['latitude'], site['background_image'], site['name'], site['description']);
             });
           }
           markerImage.src = "images/sites/" + site['marker_image'];
@@ -96,10 +96,19 @@ function getSites() {
   });
 }
 
+function updateContent(title, image, text) {
+  $("#content-title").text(title);
+  $("#content-image").attr("src", image);
+  $("#content-text").text(text);
+}
+
 /*
  * Called when a site is clicked. Loads the site background and all markers at the site.
  */
-function loadSite(id, longitude, latitude, background) {
+function loadSite(id, longitude, latitude, background, name, description) {
+
+  updateContent(name, "", description);
+
 
   // disableUserControl();
   map.setView([latitude, longitude], DEFAULT_ZOOM, {animate: false}); // set to long and lat of the site
@@ -141,9 +150,7 @@ function loadSite(id, longitude, latitude, background) {
 
 
             marker.on("click", function() {
-              $("#content-title").text(feature['name']);
-              $("#content-image").attr("src", "images/content/" + feature['content_image']);
-              $("#content-text").text(feature['content_text']);
+              updateContent(feature['name'], "images/content/" + feature['content_image'], feature['content_text']);
             });
 
 
@@ -172,6 +179,8 @@ function goBack() {
   map.setZoom(DEFAULT_ZOOM);
   map.setMaxBounds(null);
   getSites();
+
+  updateContent("Welcome to the BFB Map!", "", "This map records significant project activities and knowledge that has been produced at major sites of activity. Start by clicking on either Kelowna or Richmond, and then click an image for more information about it.");
 }
 
 /*
