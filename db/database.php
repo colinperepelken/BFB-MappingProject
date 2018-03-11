@@ -21,7 +21,12 @@ class Database {
         }
         $stmt->execute();
 
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        if (strpos($query, 'INSERT') !== false) {
+          return null;
+        } else {
+          return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        }
+
       }
       return null;
     }
