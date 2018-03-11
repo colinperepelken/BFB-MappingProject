@@ -1,9 +1,12 @@
 
 // Global variables
 var map;
-var backButton;
 var markerGroup;
 var backgroundImage;
+
+var viewingMarker; // is the user currently viewing a marker?
+
+var siteName, siteDescription;
 
 var DEFAULT_ZOOM = 11;
 
@@ -21,32 +24,18 @@ function initMap() {
   });
 
   // temp tile layer for now
-  var tileLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+  var tileLayer = L.tileLayer('http://c.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg', {
       //attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-      maxZoom: 18,
-      id: 'mapbox.outdoors',
-      accessToken: 'pk.eyJ1Ijoic3VoZmYiLCJhIjoiY2plMGk3eWh1MHk0MDMzbW9scDhhaXpibiJ9.B32EslPErO5wtqwwa9vvyQ'
+      maxZoom: 18
   }).addTo(map);
 
   // add all sites to the map
   getSites();
 
-  // init the back button
-  backButton = L.easyButton({
-    id: 'back-btn',
-    position: 'topleft',
-    type: 'replace',
-    leafletClasses: false,
-    states: [{
-      stateName: 'go-back',
-      onClick: goBack,
-      title: 'Go back',
-      icon: '<img alt="back button" src="images/buttons/back.png"/>'
-    }]
-  });
-
   // site background image
   backgroundImage = null;
+
+  viewingMarker = false;
 
   // markers in a site
   markerGroup = L.layerGroup().addTo(map);
@@ -96,10 +85,15 @@ function getSites() {
   });
 }
 
-function updateContent(title, image, text) {
+function updateContent(title, text, image = null, video = null, date = null) {
   $("#content-title").text(title);
   $("#content-image").attr("src", image);
   $("#content-text").text(text);
+  if (date !== null) {
+    $("#content-date").text("Date: " + date);
+  } else {
+    $("#content-date").text("");
+  }
 }
 
 /*
@@ -107,7 +101,13 @@ function updateContent(title, image, text) {
  */
 function loadSite(id, longitude, latitude, background, name, description) {
 
-  updateContent(name, "", description);
+  siteName = name;
+  siteDescription = description;
+
+  updateContent(name, description);
+
+  // add back button
+  addBackButton();
 
 
   // disableUserControl();
@@ -142,15 +142,11 @@ function loadSite(id, longitude, latitude, background, name, description) {
 
             let marker = L.marker([feature['latitude'], feature['longitude']], {icon: markerIcon}).addTo(markerGroup);
 
-            // Show a pop up with information about the feature
-            // let popup = L.popup({maxWidth: 500, minWidth: 500, maxHeight: 800, minHeight: 800, keepInView: true, className: 'custom'})
-            //   .setContent("<h1>" + feature['name'] + '</h1><img height=300 width=500 src="images/content/' + feature['content_image'] + '"/><p>' + feature['content_text'] + '</p><p>Date added: ' + feature['date_added'] + '</p>')
-            //   .setLatLng(map.getCenter());
-            // marker.bindPopup(popup);
-
 
             marker.on("click", function() {
-              updateContent(feature['name'], "images/content/" + feature['content_image'], feature['content_text']);
+              map.setView(this.getLatLng(), DEFAULT_ZOOM + 1); // center and zoom on marker
+              updateContent(feature['name'], feature['content_text'],  "images/content/" + feature['content_image'], null, feature['date_added']);
+              viewingMarker = true;
             });
 
 
@@ -164,23 +160,36 @@ function loadSite(id, longitude, latitude, background, name, description) {
      }
   });
 
-  backButton.addTo(map);
+  addBackButton();
 
+}
+
+function addBackButton() {
+  $("#back-button").css("display", "inline");
+}
+
+function removeBackButton() {
+  $("#back-button").css("display", "none");
 }
 
 /*
  * Called when the back button is clicked.
  */
 function goBack() {
-  // enableUserControl();
-  map.removeControl(backButton);
-  map.removeLayer(backgroundImage);
-  markerGroup.clearLayers();
   map.setZoom(DEFAULT_ZOOM);
-  map.setMaxBounds(null);
-  getSites();
 
-  updateContent("Welcome to the BFB Map!", "", "This map records significant project activities and knowledge that has been produced at major sites of activity. Start by clicking on either Kelowna or Richmond, and then click an image for more information about it.");
+  if (viewingMarker) {
+    updateContent(siteName, siteDescription);
+    viewingMarker = false;
+  } else {
+    removeBackButton();
+    map.removeLayer(backgroundImage);
+    markerGroup.clearLayers();
+    map.setMaxBounds(null);
+    getSites();
+
+    updateContent("Welcome to the BFB Map!", "This map records significant project activities and knowledge that has been produced at major sites of activity. Start by clicking on either Kelowna or Richmond, and then click an image for more information about it.");
+  }
 }
 
 /*
