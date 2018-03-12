@@ -32,6 +32,7 @@ h1 {
   padding-right: 2em;
   overflow: auto;
   font-size: 16px;
+  height: 600px;
 }
 
 #content-title {
