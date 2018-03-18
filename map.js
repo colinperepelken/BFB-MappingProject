@@ -20,8 +20,11 @@ function initMap() {
   map = new L.map('map', {
     center: [49.8880, -119.4960],
     zoom: DEFAULT_ZOOM,
+    maxZoom: 15,
+    minZoom: 7,
     maxBoundsViscosity: 1.0 // prevent user from dragging outside bounds
   });
+
 
   // temp tile layer for now
   var tileLayer = L.tileLayer('http://c.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg', {
