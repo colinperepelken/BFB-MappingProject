@@ -4,6 +4,15 @@
 
 /* Tables */
 
+CREATE TABLE location (
+  id INT AUTO_INCREMENT,
+  latitude DECIMAL(10, 8) NOT NULL,
+  longitude DECIMAL(11, 8) NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  marker_image VARCHAR(250),
+  PRIMARY KEY (id)
+)
+
 CREATE TABLE site (
   id INT AUTO_INCREMENT,
   latitude DECIMAL(10, 8) NOT NULL,
@@ -12,7 +21,9 @@ CREATE TABLE site (
   description VARCHAR(1000),
   marker_image VARCHAR(250),
   background_image VARCHAR(250),
-  PRIMARY KEY (id)
+  location INT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (location) REFERENCES location(id)
 );
 
 CREATE TABLE layer (

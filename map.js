@@ -2,13 +2,16 @@
 // Global variables
 var map;
 var markerGroup;
+var sitesGroup;
 var backgroundImage;
 
-var viewingMarker; // is the user currently viewing a marker?
+var currentLocation;
+var currentView;
+var MapViews = Object.freeze({locations:1, sites:2, markers:3, content:4});
 
 var siteName, siteDescription;
 
-var DEFAULT_ZOOM = 11;
+var ZoomLevels = Object.freeze({locations:7, sites:11, markers:11, content:12});
 
 
 /*
@@ -18,10 +21,10 @@ function initMap() {
 
   // init map
   map = new L.map('map', {
-    center: [49.8880, -119.4960],
-    zoom: DEFAULT_ZOOM,
-    maxZoom: 15,
-    minZoom: 7,
+    center: [49.5, -121.499713],
+    zoom: ZoomLevels.locations,
+    maxZoom: ZoomLevels.locations,
+    minZoom: ZoomLevels.locations,
     maxBoundsViscosity: 1.0 // prevent user from dragging outside bounds
   });
 
@@ -32,16 +35,22 @@ function initMap() {
       maxZoom: 18
   }).addTo(map);
 
-  // add all sites to the map
-  getSites();
+  // load kelowna and richmond locations (inital view)
+  loadLocations();
 
   // site background image
   backgroundImage = null;
 
-  viewingMarker = false;
+  currentView = MapViews.locations;
 
   // markers in a site
   markerGroup = L.layerGroup().addTo(map);
+
+  // sites in a location
+  sitesGroup = L.layerGroup().addTo(map);
+
+  // locations on the map
+  locationsGroup = L.layerGroup().addTo(map);
 
   // log click locations
   map.on("contextmenu", function (event) {
@@ -49,14 +58,64 @@ function initMap() {
   });
 }
 
-/*
- * Query database for all sites and add them to the map.
- */
-function getSites() {
+function loadLocations() {
+
+  // restrict zooming
+  map.options.maxZoom = ZoomLevels.locations;
+  map.options.minZoom = ZoomLevels.locations;
+  map.setView([49.5, -121.499713], ZoomLevels.locations, {animate: false});
+
   $.ajax({
       type: "post",
       url: "db/ajax_requests.php",
-      data: {request: "get_sites"},
+      data: {request: "get_locations"},
+      success: function(result) {
+
+        for (let location of result) {
+
+          let markerImage = new Image();
+          let locationIcon;
+          markerImage.onload = function() {
+            locationIcon = L.icon({
+              iconUrl: this.src,
+              iconSize: [this.width, this.height]
+            });
+
+            let marker = L.marker([location['latitude'], location['longitude']], {icon: locationIcon}).addTo(locationsGroup);
+
+            marker.on("click", function() {
+              map.removeLayer(this);
+              // restrict zooming
+              map.options.maxZoom = ZoomLevels.sites;
+              map.options.minZoom = ZoomLevels.sites;
+              map.setView([location['latitude'], location['longitude']], ZoomLevels.sites, {animate: false});
+              getSites(location['id']);
+              locationsGroup.clearLayers();
+            });
+          }
+          markerImage.src = "images/locations/" + location['marker_image'];
+
+        }
+
+      },
+      error: function(jqXHR, textStatus, errorThrown){
+        alert(textStatus, errorThrown);
+     }
+  });
+}
+
+/*
+ * Query database for all sites and add them to the map.
+ */
+function getSites(locationID) {
+
+  currentLocation = locationID;
+  currentView = MapViews.sites;
+
+  $.ajax({
+      type: "post",
+      url: "db/ajax_requests.php",
+      data: {request: "get_sites", arg1: locationID},
       success: function(result) {
         console.log(result);
 
@@ -70,7 +129,7 @@ function getSites() {
               iconSize: [this.width, this.height]
             });
 
-            let marker = L.marker([site['latitude'], site['longitude']], {icon: siteIcon}).addTo(map);
+            let marker = L.marker([site['latitude'], site['longitude']], {icon: siteIcon}).addTo(sitesGroup);
 
             marker.on("click", function() {
               map.removeLayer(this);
@@ -104,6 +163,8 @@ function updateContent(title, text, image = null, video = null, date = null) {
  */
 function loadSite(id, longitude, latitude, background, name, description) {
 
+  currentView = MapViews.markers;
+
   siteName = name;
   siteDescription = description;
 
@@ -114,7 +175,7 @@ function loadSite(id, longitude, latitude, background, name, description) {
 
 
   // disableUserControl();
-  map.setView([latitude, longitude], DEFAULT_ZOOM, {animate: false}); // set to long and lat of the site
+  map.setView([latitude, longitude], ZoomLevels.markers, {animate: false}); // set to long and lat of the site
   //map.setZoom(DEFAULT_ZOOM + 1);
 
   backgroundImage = L.imageOverlay("images/sites/" + background, [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()]);
@@ -123,8 +184,8 @@ function loadSite(id, longitude, latitude, background, name, description) {
   map.setMaxBounds(backgroundImage.getBounds());
 
   // restrict zooming
-  map._layersMaxZoom = 13;
-  map._layersMinZoom = DEFAULT_ZOOM;
+  map.options.maxZoom = ZoomLevels.content + 1;
+  map.options.minZoom = ZoomLevels.markers;
 
   // get markers for the site
   $.ajax({
@@ -147,9 +208,9 @@ function loadSite(id, longitude, latitude, background, name, description) {
 
 
             marker.on("click", function() {
-              map.setView(this.getLatLng(), DEFAULT_ZOOM + 1); // center and zoom on marker
+              map.setView(this.getLatLng(), ZoomLevels.content, {animate: false}); // center and zoom on marker
               updateContent(feature['name'], feature['content_text'],  "images/content/" + feature['content_image'], null, feature['date_added']);
-              viewingMarker = true;
+              currentView = MapViews.content;
             });
 
 
@@ -179,19 +240,37 @@ function removeBackButton() {
  * Called when the back button is clicked.
  */
 function goBack() {
-  map.setZoom(DEFAULT_ZOOM);
 
-  if (viewingMarker) {
+
+  if (currentView === MapViews.content) {
+
+    // go back to view of markers at a site
+    map.setZoom(ZoomLevels.markers);
     updateContent(siteName, siteDescription);
-    viewingMarker = false;
-  } else {
-    removeBackButton();
+    currentView = MapViews.markers;
+
+  } else if (currentView === MapViews.markers) {
+
+    // go back to view of sites at a location
+    currentView = MapViews.sites;
     map.removeLayer(backgroundImage);
     markerGroup.clearLayers();
     map.setMaxBounds(null);
-    getSites();
+    getSites(currentLocation);
+
+  } else if (currentView === MapViews.sites) {
+
+    // go back to view of locations (i.e. Kelowna, Richmond)
+    sitesGroup.clearLayers();
+    loadLocations();
+    removeBackButton();
+
+
 
     updateContent("Welcome to the BFB Map!", "This map records significant project activities and knowledge that has been produced at major sites of activity. Start by clicking on either Kelowna or Richmond, and then click an image for more information about it.");
+
+  } else {
+
   }
 }
 
