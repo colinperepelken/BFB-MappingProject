@@ -65,3 +65,9 @@ h1 {
 #back-button:hover {
   color: #FBB655;
 }
+
+#content-video {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  display: none;
+}

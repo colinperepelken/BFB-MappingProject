@@ -48,7 +48,7 @@
           <label>Marker Image </label><input type="text" name="marker_image">
           <label>Background Image </label><input type="text" name="background_image">
           <input type="hidden" name="type" value="site">
-          <input type="submit">
+          <input type="submit" value="Submit">
         </form>
       </div>
 
@@ -74,7 +74,7 @@
             <?php endforeach ?>
           </select><br>
           <input type="hidden" name="type" value="marker">
-          <input type="submit">
+          <input type="submit" value="Submit">
         </form>
       </div>
 

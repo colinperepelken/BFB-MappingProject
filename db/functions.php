@@ -7,9 +7,9 @@ class Functions {
     $this->db = $db;
   }
 
-  public function get_sites($locationID) {
-      $query = "SELECT * FROM site WHERE location=?";
-      return $this->db->data_query($query, "i", array($locationID));
+  public function get_sites() {
+      $query = "SELECT * FROM site";
+      return $this->db->data_query($query);
   }
 
   public function get_layers() {
