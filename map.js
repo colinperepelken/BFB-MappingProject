@@ -13,7 +13,7 @@ var watercolor, satellite;
 
 // layer buttons
 var projectsBtn, historicalBtn, ecologicalBtn, communityBtn;
-var currentLayer = null; // currently no default layer
+var currentLayer = null;
 
 var opacityInterval = null;
 
@@ -532,7 +532,7 @@ function disableUserControl() {
   map.boxZoom.disable();
   map.keyboard.disable();
   $(".leaflet-control-zoom").css("display", "none");
-  map.dragging.disable();
+  // map.dragging.disable();
 }
 
 /*
