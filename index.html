@@ -42,12 +42,23 @@
         </div>
       </div>
       <div class="col-md-5" id="map-content">
-        <button id="back-button" onclick="goBack()">Back</button>
-        <h3 id="content-title">Welcome to the BFB Map!</h3>
-        <img id="content-image" src=""/>
-        <iframe id="content-video" src="" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-        <p id="content-text">This map records significant project activities and knowledge that has been produced at major sites of activity. Start by clicking on either Kelowna or Richmond, and then click an image for more information about it.</p>
-        <p id="content-date"></p>
+        <div id="sidebar">
+          <button id="back-button" onclick="goBack()">Back</button>
+          <div id="projects-legend">
+            <p><b>Projects Legend: </b></p>
+            <p>
+              <img src="images/feature/workshops.png" width="40px"> - Workshops
+              <img src="images/feature/community_events.png" width="40px"> - Community Events
+              <img src="images/feature/volunteer.png" width="40px"> - Volunteer Activities
+            </p>
+          </div>
+          <h3 id="content-title">Welcome to the BFB Map!</h3>
+
+          <img id="content-image" src=""/>
+          <iframe id="content-video" src="" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+          <p id="content-text">This map records significant project activities and knowledge that has been produced at major sites of activity. Start by clicking on either Kelowna or Richmond, and then click an image for more information about it.</p>
+          <p id="content-date"></p>
+        </div>
       </div>
     </div>
   </div>
